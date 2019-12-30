@@ -43,6 +43,7 @@ I start by preparing "object points", which will be the (x, y, z) coordinates of
 <figcaption><center><a href="./output_images/CameraCalibration/Corners/calibration2_corners.jpg">calibration2_corners.jpg</a></center></figcaption>
 </figure>
 
+
 `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
 
 I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function. these are stored in a pickel file named `CameraMatrix_DistrotionCoefficients.pickle`. I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result: 
@@ -50,14 +51,16 @@ I then used the output `objpoints` and `imgpoints` to compute the camera calibra
 **The output images of this stage can be found under [this directory](./output_images/CameraCalibration/Undistorted/)**
 
 <img src="./output_images/CameraCalibration/Undistorted/calibration4_undistorted.jpg" />
-<center>[calibration4_undistorted.jpg](./output_images/CameraCalibration/Undistorted/calibration4_undistorted.jpg)</center>
+<center><a href="./output_images/CameraCalibration/Undistorted/calibration4_undistorted.jpg">calibration4_undistorted.jpg</a></center>
+
 
 and, finally if the point to be found on the undistorted image, the image is warped using the corners as the reference points and `cv2.getPerspectiveTransform` function. the warped chessboard is as it seen from the front.
 
 **The output images of this stage can be found under [this directory](./output_images/CameraCalibration/Warped/)**
 
 <img src="./output_images/CameraCalibration/Warped/calibration3_warped.jpg" />
-<center>[calibration3_warped.jpg](./output_images/CameraCalibration/Warped/calibration3_warped.jpg)</center>
+<center><a href="./output_images/CameraCalibration/Warped/calibration3_warped.jpg">calibration3_warped.jpg</a></center>
+
 
 ## Pipeline overview
 
@@ -68,7 +71,8 @@ the pipeline is defined in the fifth cell of the IPython notebook located in "./
 The camera calibration matrix and distortion coefficients obtained during the camera calibration step are passed to the constructor of the lane line detection class. these are used to undistort the image pass to the pipeline since the calibration parameters are independent from the camera angle. like before by using `cv2.undistort()` function, the undistorted image is created:
 
 <img src="./output_images/test1_stage1_undistorted.jpg" />
-<center>[test1_stage1_undistorted.jpg](./output_images/test1_stage1_undistorted.jpg)</center>
+<center><a href="./output_images/test1_stage1_undistorted.jpg">test1_stage1_undistorted.jpg</a></center>
+
 
 ### 2. Color and gradients transforms
 
@@ -80,7 +84,8 @@ Color transform is defined in the `advanced_pipeline` function in the fifth cell
 first, the image is converted to the HLS color space. this gives three channels: l-channel, s-channel, h-channel. the s-channel is good at detecting the differece between the light color where l-channel or gray-scale transform loses the information.  minimum 170 and maximum 255 thresholds is applied on the S-channel  and the binary output as follows: (these values are chosen so the lane lines are preserved while the other colors are canceled)
 
 <img src="./output_images/test1_stage3_clrThrsh.jpg" width="640" height="360" />
-<center>[test1_stage3_clrThrsh.jpg](./output_images/test1_stage3_clrThrsh.jpg)</center>
+<center><a href="./output_images/test1_stage3_clrThrsh.jpg">test1_stage3_clrThrsh.jpg</a></center>
+
 
 #### Sobel operator and gradient thresholding
 
@@ -89,23 +94,27 @@ the Sobel operator performs gradient on the l-channel to detect the edges of the
 for the purpose of lane line detection, first sobel operator is calculated over the x axis. this detects the roughly vertical edges in the image. then gradient magnitude and direction are combined, detecting the almost vertical gradients which are large enough. the result of this two operation are added and the output of the gradient thresholding is like the following image:
 
 <img src="./output_images/straight_lines1_stage2_gradThrsh.jpg" width="640" height="360" />
-<center>[straight_lines1_stage2_gradThrsh.jpg](./output_images/straight_lines1_stage2_gradThrsh.jpg)</center>
+<center><a href="./output_images/straight_lines1_stage2_gradThrsh.jpg">straight_lines1_stage2_gradThrsh.jpg</a></center>
+
 
 #### Combinition of the color and gradient thresholding
 
 the following image illustrates how these two complete each other: where color thresholding(in blue) fails to detect the lane line gradient thresholding(in green) finds the lane and vice versa. 
 
 <img src="./output_images/test4_stage4_clrGradThrsh.jpg" width="640" height="360" />
-<center>[test4_stage4_clrGradThrsh.jpg](./output_images/test4_stage4_clrGradThrsh.jpg)</center>
+<center><a href="./output_images/test4_stage4_clrGradThrsh.jpg">test4_stage4_clrGradThrsh.jpg</a></center>
+
 
 the thresholded binary combinition image looks like this:
 
-<img src="./output_images/test1_stage5_binary_combo.jpg" width="640" height="360" />
-<center>[test1_stage5_binary_combo.jpg](./output_images/test1_stage5_binary_combo.jpg)</center>
+<img src="./output_images/test3_stage5_binary_combo.jpg" width="640" height="360" />
+<center><a href="./output_images/test3_stage5_binary_combo.jpg">test3_stage5_binary_combo.jpg</a></center>
+
 
 ### 3. Perspective transform 
 
-The goal of this stage is to transform the 
+The goal of this stage is to transform the front-facing camera image to the birds-eye view. in the front-facing image, the lane lines converge because of the perspective and depth of the scene. this transform makes it possible to fit parallel lines to the lanes and measure the lane cuvature.
+
 The code for my perspective transform includes a function called `unwarp()`, which appears in the [first code cell](./P2.ipynb#Helper-functions) of the IPython notebook located in "./P2.ipynb".  The `unwarp()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
 
 
@@ -119,13 +128,24 @@ The code for my perspective transform includes a function called `unwarp()`, whi
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
 <img src="./output_images/straight_lines1_stage6_warped_src_dest.jpg" />
-<center>[straight_lines1_stage6_warped_src_dest.jpg](./output_images/straight_lines1_stage6_warped_src_dest.jpg)</center>
+<center><a href="./output_images/straight_lines1_stage6_warped_src_dest.jpg">straight_lines1_stage6_warped_src_dest.jpg</a></center>
 
-### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
+The binary image obtained from the previous stage after being warpped:
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+<img src="./output_images/test3_stage7_warped_binary.jpg" width="640" height="360" />
+<center><a href="./output_images/test3_stage7_warped_binary.jpg">test3_stage7_warped_binary.jpg</a></center>
 
-<img src="./examples/color_fit_lines.jpg" width="640" height="360" />
+
+### 4. Lane line detection and curve fitting
+
+this stage identifies the pixels for each lane line, then fits a 2nd degree polynomial to those pixels.
+
+prior search
+sanity check
+
+<img src="./output_images/test3_stage8_fit_curve.jpg" width="640" height="360" />
+<center><a href="./output_images/test3_stage8_fit_curve.jpg">test3_stage8_fit_curve.jpg</a></center>
+
 
 ### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
@@ -135,7 +155,8 @@ I did this in lines # through # in my code in `my_other_file.py`
 
 I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
 
-<img src="./examples/example_output.jpg" width="640" height="360" />
+<img src="./output_images/test4_stage10_lane_boundary.jpg" width="640" height="360" />
+<center><a href="./output_images/test4_stage10_lane_boundary.jpg">test4_stage10_lane_boundary.jpg</a></center>
 
 ---
 
@@ -144,7 +165,11 @@ I implemented this step in lines # through # in my code in `yet_another_file.py`
 ### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
 Here's a [link to my video result](./project_video.mp4)
+
+
 <video src="./project_video_output.mp4" width="960" height="540" controls/>
+
+
 ---
 
 ## Discussion
