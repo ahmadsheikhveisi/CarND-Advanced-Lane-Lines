@@ -38,8 +38,10 @@ I start by preparing "object points", which will be the (x, y, z) coordinates of
 
 **The output images of this stage can be found under [this directory](./output_images/CameraCalibration/Corners/)**
 
+<figure>
 <img src="./output_images/CameraCalibration/Corners/calibration2_corners.jpg" width="640" height="360" />
-<center><a href="./output_images/CameraCalibration/Corners/calibration2_corners.jpg">calibration2_corners.jpg</a></center>
+<figcaption><center><a href="./output_images/CameraCalibration/Corners/calibration2_corners.jpg">calibration2_corners.jpg</a></center></figcaption>
+</figure>
 
 `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
 
